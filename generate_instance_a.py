@@ -116,25 +116,33 @@ def generar_instancia(
 
 if __name__ == "__main__":
     os.makedirs(DIR_INSTANCIAS, exist_ok=True)
+
+    generar_instancia(
+        filename=PATH_INSTANCIA_CHICA,
+        N=DEFAULT_N,
+        M=DEFAULT_M,
+        seed=DEFAULT_SEED,
+        restrictiva=False
+    )
     
     # 1. Instancia Pesada: Con N=80 y M=25, para un tau medio-bajo, 
     # SCIP tardará varios minutos (o no cerrará el gap) en 60 segundos.
-    generar_instancia(
-        filename=PATH_INSTANCIA_PESADA,
-        N=PESADA_N,
-        M=PESADA_M,
-        seed=PESADA_SEED,
-        restrictiva=False
-    )
+    #generar_instancia(
+    #    filename=PATH_INSTANCIA_PESADA,
+    #    N=PESADA_N,
+    #    M=PESADA_M,
+    #    seed=PESADA_SEED,
+    #    restrictiva=False
+    #)
     
     # 2. Instancia Sin Solución a tiempo corto: Con N=120, M=40 y recursos muy acotados (restrictiva=True),
     # a SCIP le costará encontrar *incluso la primera solución factible*. 
     # Si le pones un límite estricto de **2 o 3 segundos** (`model.setParam('limits/time', 3)`), 
     # expirará el tiempo antes de hallar unfeasible/optimal o cualquier solución inicial.
-    generar_instancia(
-        filename=PATH_INSTANCIA_SIN_SOL,
-        N=SINSOL_N,
-        M=SINSOL_M,
-        seed=SINSOL_SEED,
-        restrictiva=True
-    )
+    #generar_instancia(
+    #    filename=PATH_INSTANCIA_SIN_SOL,
+    #    N=SINSOL_N,
+    #    M=SINSOL_M,
+    #    seed=SINSOL_SEED,
+    #    restrictiva=True
+    #)
