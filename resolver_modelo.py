@@ -128,7 +128,7 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
 
         # Tiene un array con las cantidad producidas de los diseños para llegar a la mejor solucion
         solucion = [
-            model.getSolVal(sol, x[j])
+            int(round(float(model.getSolVal(sol, x[j]))))
             for j in range(n)
         ]
 
@@ -149,9 +149,10 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
         "solucion": solucion,
         "beneficio": beneficio_obtenido,
         "es_optimo": es_optimo,
-        "tiempo": tiempo_utilizado,
+        "tiempo_solicitado": segundos,
+        "tiempo_utilizado": tiempo_utilizado,
         "tau": tau
     }
 
 if __name__ == "__main__":
-    print(resolver_modelo(os.path.join(DIR_INSTANCIAS, "instancia_chica.txt"), 10, 10))
+    print(resolver_modelo(os.path.join(DIR_INSTANCIAS, "instancia_pesada.txt"), 1, 5))

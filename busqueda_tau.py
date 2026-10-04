@@ -1,4 +1,6 @@
 import time
+from operator import is_not
+
 from pyscipopt import Model
 from leer_instancia import leer_instancia
 from generate_instance_a import DIR_INSTANCIAS
@@ -151,7 +153,8 @@ def busqueda_tau(path_instancia: str, segundos: float):
         sol = model.getBestSol()
 
         solucion = [
-            model.getSolVal(sol, x[j])
+            # Le agregamos el int(round(float ya que vimos casos en donde la solucion da valores como 0.9999999999999991 que es 1, pero por temas de manejo de floats queda mal
+            int(round(float(model.getSolVal(sol, x[j]))))
             for j in range(n)
         ]
 
@@ -193,13 +196,17 @@ def busqueda_tau(path_instancia: str, segundos: float):
     # 16. Resultado final
     # --------------------------------------------------
     return {
+        "resultado": "Se encontro solucion" if mejor_tau is not None else "No se encontro solucion factible",
+        "tau_alcanzado": tau,
         "tau": mejor_tau,
         "solucion": mejor_solucion,
         "beneficio_operativo": mejor_beneficio_operativo,
         "beneficio_neto": mejor_beneficio_neto,
         "es_optimo": mejor_es_optimo,
-        "tiempo": tiempo_utilizado
+        "tiempo_solicitado": segundos,
+        "tiempo_utilizado": tiempo_utilizado,
+        "estado": model.getStatus()
     }
 
 if __name__ == "__main__":
-    print(busqueda_tau(os.path.join(DIR_INSTANCIAS, "instancia_chica.txt"), 100))
+    print(busqueda_tau(os.path.join(DIR_INSTANCIAS, "instancia_sin_solucion.txt"), 10))
