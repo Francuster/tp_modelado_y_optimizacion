@@ -85,6 +85,7 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
         for j in range(n)
     )
 
+    # Restar el costo operativo no cambia la busqueda de la solucion optima porque es un monto fijo
     model.setObjective(
         beneficio,
         "maximize"
@@ -153,4 +154,4 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
     }
 
 if __name__ == "__main__":
-    print(resolver_modelo(os.path.join(DIR_INSTANCIAS, "instancia_sin_solucion.txt"), 10, 1000))
+    print(resolver_modelo(os.path.join(DIR_INSTANCIAS, "instancia_chica.txt"), 10, 10))
