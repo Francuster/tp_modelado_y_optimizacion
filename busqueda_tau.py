@@ -19,22 +19,16 @@ def busqueda_tau(path_instancia: str, segundos: float):
         dict con la mejor solución encontrada.
     """
 
-    # --------------------------------------------------
     # 1. Leer la instancia
-    # --------------------------------------------------
     n, m, beta, b, c, w, u, a = leer_instancia(path_instancia)
 
-    # --------------------------------------------------
     # 2. Calcular el máximo tau posible
-    # --------------------------------------------------
     U = sum(
         w[j] * u[j]
         for j in range(n)
     )
 
-    # --------------------------------------------------
     # 3. Crear el modelo una sola vez
-    # --------------------------------------------------
     model = Model("busqueda_tau")
 
     # Variables
@@ -50,9 +44,7 @@ def busqueda_tau(path_instancia: str, segundos: float):
 
         x.append(variable)
 
-    # --------------------------------------------------
     # 4. Restricciones de recursos
-    # --------------------------------------------------
     for i in range(m):
 
         consumo_recurso = sum(
@@ -65,9 +57,7 @@ def busqueda_tau(path_instancia: str, segundos: float):
             name=f"recurso_{i + 1}"
         )
 
-    # --------------------------------------------------
     # 5. Restricción de potencia
-    # --------------------------------------------------
     consumo_potencia = sum(
         w[j] * x[j]
         for j in range(n)
@@ -77,10 +67,8 @@ def busqueda_tau(path_instancia: str, segundos: float):
         consumo_potencia <= 0,
         name="capacidad_potencia"
     )
-
-    # --------------------------------------------------
+    
     # 6. Función objetivo
-    # --------------------------------------------------
     beneficio = sum(
         c[j] * x[j]
         for j in range(n)
@@ -91,23 +79,17 @@ def busqueda_tau(path_instancia: str, segundos: float):
         "maximize"
     )
 
-    # --------------------------------------------------
     # 7. Variables para guardar la mejor solución
-    # --------------------------------------------------
     mejor_tau = None
     mejor_beneficio_neto = None
     mejor_beneficio_operativo = None
     mejor_solucion = None
     mejor_es_optimo = False
 
-    # --------------------------------------------------
     # 8. Comenzar a medir el tiempo global
-    # --------------------------------------------------
     inicio = time.monotonic()
 
-    # --------------------------------------------------
     # 9. Recorrer los posibles valores de tau
-    # --------------------------------------------------
     for tau in range(U + 1):
 
         # Tiempo transcurrido
@@ -120,9 +102,7 @@ def busqueda_tau(path_instancia: str, segundos: float):
         if restante <= 0:
             break
 
-        # --------------------------------------------------
         # 10. Actualizar tau sin reconstruir el modelo
-        # --------------------------------------------------
         model.freeTransform()
 
         model.chgRhs(
@@ -130,22 +110,16 @@ def busqueda_tau(path_instancia: str, segundos: float):
             tau
         )
 
-        # --------------------------------------------------
         # 11. Darle a SCIP el tiempo restante
-        # --------------------------------------------------
         model.setParam(
             "limits/time",
             restante
         )
 
-        # --------------------------------------------------
         # 12. Resolver
-        # --------------------------------------------------
         model.optimize()
 
-        # --------------------------------------------------
         # 13. Verificar si encontramos una solución
-        # --------------------------------------------------
         if model.getNSols() == 0:
             continue
 
@@ -170,9 +144,7 @@ def busqueda_tau(path_instancia: str, segundos: float):
         # Beneficio neto
         beneficio_neto = beneficio_operativo - costo
 
-        # --------------------------------------------------
         # 14. Guardar si es la mejor solución
-        # --------------------------------------------------
         if (
             mejor_beneficio_neto is None
             or beneficio_neto > mejor_beneficio_neto
@@ -187,26 +159,20 @@ def busqueda_tau(path_instancia: str, segundos: float):
                 model.getStatus() == "optimal"
             )
 
-    # --------------------------------------------------
     # 15. Tiempo total utilizado
-    # --------------------------------------------------
     tiempo_utilizado = time.monotonic() - inicio
 
-    # --------------------------------------------------
     # 16. Resultado final
-    # --------------------------------------------------
+    # Las variables comentadas se usaron para el testeo manual/inicial del modelo
     return {
-        "resultado": "Se encontro solucion" if mejor_tau is not None else "No se encontro solucion factible",
-        "tau_alcanzado": tau,
+        "resultado": "Se encontro solucion" if mejor_tau is not None else "No se encontro solucion factible", # Para cumplir el requerimiento de Robustez del punto 3.2
+        #"tau_alcanzado": tau,
         "tau": mejor_tau,
         "solucion": mejor_solucion,
-        "beneficio_operativo": mejor_beneficio_operativo,
-        "beneficio_neto": mejor_beneficio_neto,
+        #"beneficio_operativo": mejor_beneficio_operativo,
+        #"beneficio_neto": mejor_beneficio_neto,
         "es_optimo": mejor_es_optimo,
         "tiempo_solicitado": segundos,
         "tiempo_utilizado": tiempo_utilizado,
-        "estado": model.getStatus()
+        "estado": model.getStatus() # Agregado para cumplir con los tests de manejo de estados del solver
     }
-
-if __name__ == "__main__":
-    print(busqueda_tau(os.path.join(DIR_INSTANCIAS, "instancia_sin_solucion.txt"), 10))

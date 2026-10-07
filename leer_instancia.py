@@ -6,7 +6,7 @@ def leer_instancia(path_instancia: str):
     """
     Lee una instancia del problema desde un archivo de texto.
 
-    Parámetros:
+    Parametros:
         path_instancia (str): ruta al archivo de instancia.
 
     Retorna:
@@ -20,7 +20,7 @@ def leer_instancia(path_instancia: str):
             b    = disponibilidad de cada recurso
             c    = beneficio unitario de cada diseño
             w    = consumo de potencia de cada diseño
-            u    = cota superior de producción de cada diseño
+            u    = cota superior de produccion de cada diseño
             a    = matriz de requerimientos a[i][j]
     """
 
@@ -47,7 +47,7 @@ def leer_instancia(path_instancia: str):
 
         linea = linea.strip()
 
-        # Ignorar líneas vacías y comentarios
+        # Ignorar lineas vacias y comentarios
         if not linea or linea.startswith("#"):
             continue
 
@@ -56,25 +56,25 @@ def leer_instancia(path_instancia: str):
 
         if tipo == "N":
             if len(partes) != 2:
-                raise ValueError("Formato inválido en línea N")
+                raise ValueError("Formato invalido en linea N")
 
             n = int(partes[1])
 
         elif tipo == "M":
             if len(partes) != 2:
-                raise ValueError("Formato inválido en línea M")
+                raise ValueError("Formato invalido en linea M")
 
             m = int(partes[1])
 
         elif tipo == "BETA":
             if len(partes) != 2:
-                raise ValueError("Formato inválido en línea BETA")
+                raise ValueError("Formato invalido en linea BETA")
 
             beta = float(partes[1])
 
         elif tipo == "B":
             if len(partes) != 3:
-                raise ValueError("Formato inválido en línea B")
+                raise ValueError("Formato invalido en linea B")
 
             i = int(partes[1])
             valor = int(partes[2])
@@ -83,7 +83,7 @@ def leer_instancia(path_instancia: str):
 
         elif tipo == "DISENO":
             if len(partes) != 5:
-                raise ValueError("Formato inválido en línea DISENO")
+                raise ValueError("Formato invalido en linea DISENO")
 
             j = int(partes[1])
             beneficio = int(partes[2])
@@ -96,7 +96,7 @@ def leer_instancia(path_instancia: str):
 
         elif tipo == "A":
             if len(partes) != 4:
-                raise ValueError("Formato inválido en línea A")
+                raise ValueError("Formato invalido en linea A")
 
             i = int(partes[1])
             j = int(partes[2])
@@ -106,27 +106,27 @@ def leer_instancia(path_instancia: str):
             if a is None:
                 if n is None or m is None:
                     raise ValueError(
-                        "N y M deben aparecer antes de las líneas A"
+                        "N y M deben aparecer antes de las lineas A"
                     )
 
                 a = [[0 for _ in range(n)] for _ in range(m)]
 
-            # El archivo usa índices desde 1
-            # Python usa índices desde 0
+            # El archivo usa indices desde 1
+            # Python usa indices desde 0
             a[i - 1][j - 1] = valor
 
         else:
-            raise ValueError(f"Tipo de línea desconocido: {tipo}")
+            raise ValueError(f"Tipo de linea desconocido: {tipo}")
 
-    # Verificaciones básicas
+    # Verificaciones basicas
     if n is None:
-        raise ValueError("Falta el parámetro N")
+        raise ValueError("Falta el parametro N")
 
     if m is None:
-        raise ValueError("Falta el parámetro M")
+        raise ValueError("Falta el parametro M")
 
     if beta is None:
-        raise ValueError("Falta el parámetro BETA")
+        raise ValueError("Falta el parametro BETA")
 
     if len(b) != m:
         raise ValueError(
@@ -144,7 +144,7 @@ def leer_instancia(path_instancia: str):
     if len(a) != m or any(len(fila) != n for fila in a):
         raise ValueError("Dimensiones incorrectas de la matriz A")
 
-    # Ordenar según índice para que Python tenga:
+    # Ordenar segun indice para que Python tenga:
     # b[0] -> recurso 1
     # c[0] -> diseño 1
     # etc.
@@ -154,6 +154,3 @@ def leer_instancia(path_instancia: str):
     u = [valor for _, valor in sorted(u)]
 
     return n, m, beta, b, c, w, u, a
-
-if __name__ == "__main__":
-    print(leer_instancia(os.path.join(DIR_INSTANCIAS, "instancia_chica.txt")))

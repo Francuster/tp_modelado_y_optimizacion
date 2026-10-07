@@ -24,19 +24,13 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
             tau
     """
 
-    # --------------------------------------------------
     # 1. Leer la instancia
-    # --------------------------------------------------
     n, m, beta, b, c, w, u, a = leer_instancia(path_instancia)
 
-    # --------------------------------------------------
     # 2. Crear el modelo
-    # --------------------------------------------------
     model = Model("produccion_paneles")
 
-    # --------------------------------------------------
     # 3. Crear variables x_j
-    # --------------------------------------------------
     x = []
 
     for j in range(n):
@@ -49,9 +43,7 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
 
         x.append(variable)
 
-    # --------------------------------------------------
     # 4. Restricciones de recursos
-    # --------------------------------------------------
     for i in range(m):
 
         consumo_recurso = sum(
@@ -64,9 +56,7 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
             name=f"recurso_{i + 1}"
         )
 
-    # --------------------------------------------------
     # 5. Restricción de potencia
-    # --------------------------------------------------
     consumo_potencia = sum(
         w[j] * x[j]
         for j in range(n)
@@ -77,9 +67,7 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
         name="capacidad_potencia"
     )
 
-    # --------------------------------------------------
     # 6. Función objetivo
-    # --------------------------------------------------
     beneficio = sum(
         c[j] * x[j]
         for j in range(n)
@@ -91,17 +79,13 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
         "maximize"
     )
 
-    # --------------------------------------------------
     # 7. Límite de tiempo de SCIP
-    # --------------------------------------------------
     model.setParam(
         "limits/time",
         segundos
     )
 
-    # --------------------------------------------------
     # 8. Resolver y medir tiempo
-    # --------------------------------------------------
     inicio = time.monotonic()
 
     model.optimize()
@@ -110,14 +94,10 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
 
     tiempo_utilizado = fin - inicio
 
-    # --------------------------------------------------
     # 9. Obtener estado del solver
-    # --------------------------------------------------
     estado = model.getStatus()
 
-    # --------------------------------------------------
     # 10. Analizar si existe una solución factible
-    # --------------------------------------------------
     solucion = None
     beneficio_obtenido = None
     es_optimo = False
@@ -141,18 +121,14 @@ def resolver_modelo(path_instancia: str, segundos: float, tau: int):
         # cuando SCIP terminó en estado optimal.
         es_optimo = (estado == "optimal")
 
-    # --------------------------------------------------
     # 11. Devolver resultados
-    # --------------------------------------------------
+    # Las variables comentadas se usaron para el testeo manual/inicial del modelo
     return {
-        "estado": estado,
+        "estado": estado, # Agregado para cumplir con los tests de manejo de estados del solver
         "solucion": solucion,
-        "beneficio": beneficio_obtenido,
+        #"beneficio": beneficio_obtenido,
         "es_optimo": es_optimo,
         "tiempo_solicitado": segundos,
         "tiempo_utilizado": tiempo_utilizado,
         "tau": tau
     }
-
-if __name__ == "__main__":
-    print(resolver_modelo(os.path.join(DIR_INSTANCIAS, "instancia_pesada.txt"), 1, 5))

@@ -177,8 +177,6 @@ class TestBusquedaTau(unittest.TestCase):
 
         self.assertIsNotNone(resultado["tau"])
         self.assertIsNotNone(resultado["solucion"])
-        self.assertIsNotNone(resultado["beneficio_operativo"])
-        self.assertIsNotNone(resultado["beneficio_neto"])
 
     def test_tiempo_global(self):
         path = self.crear_instancia()
