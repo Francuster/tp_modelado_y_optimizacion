@@ -115,6 +115,12 @@ def leer_instancia(path_instancia: str):
             # Python usa indices desde 0
             a[i - 1][j - 1] = valor
 
+        elif tipo in {"ALPHA", "GAMMA", "K"}:
+            # Parametros opcionales para generacion de columnas. La lectura
+            # tradicional mantiene su tupla de retorno y los valida la
+            # funcion leer_instancia_gc.
+            continue
+
         else:
             raise ValueError(f"Tipo de linea desconocido: {tipo}")
 
@@ -154,3 +160,65 @@ def leer_instancia(path_instancia: str):
     u = [valor for _, valor in sorted(u)]
 
     return n, m, beta, b, c, w, u, a
+
+
+def leer_instancia_gc(path_instancia: str):
+    """
+    Lee los datos necesarios para las etapas 3 y 4.
+
+    Retorna ``n, m, b, c, u, a, alpha, k``. ``w``, ``beta`` y ``gamma`` no
+    forman parte de estas etapas.
+    """
+    n, m, _, b, c, _, u, a = leer_instancia(path_instancia)
+
+    alpha = [[None for _ in range(n)] for _ in range(m)]
+    k = [None for _ in range(n)]
+
+    with open(path_instancia, "r", encoding="utf-8") as archivo:
+        for numero_linea, linea in enumerate(archivo, start=1):
+            partes = linea.split()
+            if not partes or partes[0].startswith("#"):
+                continue
+
+            tipo = partes[0]
+            if tipo == "ALPHA":
+                if len(partes) != 4:
+                    raise ValueError(
+                        f"Formato invalido en linea ALPHA ({numero_linea})"
+                    )
+                i, j, valor = map(int, partes[1:])
+                if not 1 <= i <= m or not 1 <= j <= n:
+                    raise ValueError(
+                        f"Indice fuera de rango en linea ALPHA ({numero_linea})"
+                    )
+                if alpha[i - 1][j - 1] is not None:
+                    raise ValueError(f"Parametro ALPHA duplicado en linea {numero_linea}")
+                alpha[i - 1][j - 1] = valor
+            elif tipo == "K":
+                if len(partes) != 3:
+                    raise ValueError(f"Formato invalido en linea K ({numero_linea})")
+                j, valor = map(int, partes[1:])
+                if not 1 <= j <= n:
+                    raise ValueError(
+                        f"Indice fuera de rango en linea K ({numero_linea})"
+                    )
+                if k[j - 1] is not None:
+                    raise ValueError(f"Parametro K duplicado en linea {numero_linea}")
+                k[j - 1] = valor
+            elif tipo == "GAMMA":
+                if len(partes) != 2:
+                    raise ValueError(
+                        f"Formato invalido en linea GAMMA ({numero_linea})"
+                    )
+                float(partes[1])
+
+    if any(valor is None for fila in alpha for valor in fila):
+        raise ValueError("Faltan parametros ALPHA para la instancia")
+    if any(valor is None for valor in k):
+        raise ValueError("Faltan parametros K para la instancia")
+    if any(valor < 0 for fila in alpha for valor in fila):
+        raise ValueError("Los parametros ALPHA deben ser no negativos")
+    if any(valor < 0 for valor in k):
+        raise ValueError("Los parametros K deben ser no negativos")
+
+    return n, m, b, c, u, a, alpha, k
