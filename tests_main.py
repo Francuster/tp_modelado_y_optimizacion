@@ -25,7 +25,20 @@ class TestMain(unittest.TestCase):
         with redirect_stdout(salida):
             ok = main.ejecutar_run(
                 "Etapa 3 primal",
-                lambda path, segundos, **kwargs: (123, 2, 4),
+                lambda path, segundos, **kwargs: {
+                    "objetivo": 123,
+                    "restricciones": 2,
+                    "variables": 4,
+                    "disenos_seleccionados": [
+                        {
+                            "indice": 3,
+                            "cantidad": 2,
+                            "beneficio_unitario": 12,
+                            "beneficio_total": 24,
+                            "recursos_unitarios": [4, 1],
+                        }
+                    ],
+                },
                 "instancia.txt",
                 5,
             )
@@ -33,7 +46,11 @@ class TestMain(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn("objetivo=123", texto)
         self.assertIn("restricciones=2", texto)
-        self.assertIn("variables=4", texto)
+        self.assertIn("variables_mip=4", texto)
+        self.assertIn("Variables MIP=4; disenos seleccionados=1", texto)
+        self.assertIn("Diseno 3", texto)
+        self.assertIn("beneficio unitario=12.00", texto)
+        self.assertIn("cantidad=2", texto)
 
     def test_ejecucion_reporta_error(self):
         salida = io.StringIO()

@@ -17,7 +17,7 @@ Pruebas separadas: `python -m unittest tests_etapa3 -v` y `python -m unittest te
 
 ## Ejecución conjunta
 
-`main.py` prueba las etapas sobre todos los archivos `instancias/*.txt` y muestra cada ejecución:
+`main.py` prueba las etapas sobre todos los archivos `instancias/*.txt` y muestra cada ejecución, incluidos el total de variables del MIP y, por separado, cuántos diseños quedaron seleccionados (variables con cantidad positiva), sus cantidades, beneficios unitarios y contribución total:
 
 - `python main.py --segundos 60`
 - `python main.py --etapa 3 --variante ambas --segundos 30`

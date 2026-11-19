@@ -65,8 +65,8 @@ class _PricerGC(Pricer):
         return {"result": SCIP_RESULT.SUCCESS}
 
 
-def resolver_GC_nativo(path_instancia, segundos, imprimir_archivo=False):
-    """Resuelve el maestro relajado con el pricer SCIP y luego el MIP final."""
+def resolver_GC_nativo_detallado(path_instancia, segundos, imprimir_archivo=False):
+    """Retorna el MIP final con los atributos de sus diseños seleccionados."""
     if segundos < 0:
         raise ValueError("segundos debe ser no negativo")
 
@@ -99,4 +99,16 @@ def resolver_GC_nativo(path_instancia, segundos, imprimir_archivo=False):
         imprimir_archivo=imprimir_archivo,
         nombre=path_instancia,
     )
-    return mip["objetivo"], mip["restricciones"], mip["variables"]
+    return mip
+
+
+def resolver_GC_nativo(path_instancia, segundos, imprimir_archivo=False):
+    """Resuelve con pricing nativo y mantiene la tupla publica tradicional."""
+    resultado = resolver_GC_nativo_detallado(
+        path_instancia, segundos, imprimir_archivo
+    )
+    return (
+        resultado["objetivo"],
+        resultado["restricciones"],
+        resultado["variables"],
+    )

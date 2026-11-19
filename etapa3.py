@@ -392,6 +392,19 @@ def _resolver_mip(datos, catalogo, segundos, imprimir_archivo=False, nombre="gc"
         "estado": estado if restante > 0 else "not_started",
         "objetivo": objetivo,
         "solucion": solucion,
+        "disenos_seleccionados": [
+            {
+                "indice": diseno["indice"],
+                "cantidad": solucion[diseno["indice"]],
+                "beneficio_unitario": diseno["beneficio"],
+                "beneficio_total": (
+                    diseno["beneficio"] * solucion[diseno["indice"]]
+                ),
+                "recursos_unitarios": list(diseno["recursos"]),
+            }
+            for diseno in catalogo
+            if solucion.get(diseno["indice"], 0) > 0
+        ],
         "restricciones": datos["m"],
         "variables": len(catalogo),
     }
@@ -408,7 +421,14 @@ def resolver_GC_entero(modelo, catalogo, segundos):
     )
 
 
-def _resolver_GC(path_instancia, segundos, variante, imprimir_archivo):
+def resolver_GC_detallado(
+    path_instancia, segundos, variante="primal", imprimir_archivo=False
+):
+    """Retorna objetivo, solucion y atributos de los disenos seleccionados."""
+    if variante not in {"primal", "dual"}:
+        raise ValueError("variante debe ser 'primal' o 'dual'")
+    if segundos < 0:
+        raise ValueError("segundos debe ser no negativo")
     inicio = time.monotonic()
     catalogo = catalogo_inicial(path_instancia)
     modelo = crear_modelo_gc(path_instancia, variante, catalogo)
@@ -438,13 +458,20 @@ def _resolver_GC(path_instancia, segundos, variante, imprimir_archivo):
         imprimir_archivo=imprimir_archivo,
         nombre=path_instancia,
     )
-    return mip["objetivo"], mip["restricciones"], mip["variables"]
+    return mip
 
 
 def resolver_GC(path_instancia, segundos, variante="primal", imprimir_archivo=False):
     """Resuelve mediante generación manual primal o dual."""
     if segundos < 0:
         raise ValueError("segundos debe ser no negativo")
-    return _resolver_GC(path_instancia, segundos, variante, imprimir_archivo)
+    resultado = resolver_GC_detallado(
+        path_instancia, segundos, variante, imprimir_archivo
+    )
+    return (
+        resultado["objetivo"],
+        resultado["restricciones"],
+        resultado["variables"],
+    )
 
 

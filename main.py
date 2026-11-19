@@ -5,8 +5,8 @@ import glob
 import os
 import time
 
-from etapa3 import resolver_GC
-from etapa4 import resolver_GC_nativo
+from etapa3 import resolver_GC_detallado
+from etapa4 import resolver_GC_nativo_detallado
 
 
 def listar_instancias(carpeta):
@@ -17,11 +17,14 @@ def listar_instancias(carpeta):
 def ejecutar_run(nombre, funcion, instancia, segundos, **kwargs):
     inicio = time.monotonic()
     try:
-        objetivo, restricciones, variables = funcion(
+        resultado = funcion(
             instancia,
             segundos,
             **kwargs,
         )
+        objetivo = resultado["objetivo"]
+        restricciones = resultado["restricciones"]
+        variables = resultado["variables"]
         estado = "ok"
         error = None
     except Exception as exc:
@@ -35,11 +38,28 @@ def ejecutar_run(nombre, funcion, instancia, segundos, **kwargs):
     print(
         f"{nombre:18} | objetivo={objetivo if objetivo is not None else '-'}"
         f" | restricciones={restricciones if restricciones is not None else '-'}"
-        f" | variables={variables if variables is not None else '-'}"
+        f" | variables_mip={variables if variables is not None else '-'}"
         f" | tiempo={transcurrido:.3f}s"
         f" | {estado}"
         + (f" | {error}" if error else "")
     )
+    if estado == "ok":
+        disenos = resultado["disenos_seleccionados"]
+        print(
+            f"  Variables MIP={variables}; "
+            f"disenos seleccionados={len(disenos)} "
+            "(variables con cantidad positiva)"
+        )
+        if disenos:
+            for diseno in disenos:
+                print(
+                    f"  Diseno {diseno['indice']}: "
+                    f"cantidad={diseno['cantidad']}, "
+                    f"beneficio unitario={diseno['beneficio_unitario']:.2f}, "
+                    f"beneficio total={diseno['beneficio_total']:.2f}"
+                )
+        else:
+            print("  No se seleccionaron disenos.")
     return estado == "ok"
 
 
@@ -106,7 +126,7 @@ def main():
                 ejecuciones += 1
                 exitos += ejecutar_run(
                     f"Etapa 3 {variante}",
-                    resolver_GC,
+                    resolver_GC_detallado,
                     instancia,
                     args.segundos,
                     variante=variante,
@@ -117,7 +137,7 @@ def main():
             ejecuciones += 1
             exitos += ejecutar_run(
                 "Etapa 4 nativa",
-                resolver_GC_nativo,
+                resolver_GC_nativo_detallado,
                 instancia,
                 args.segundos,
                 imprimir_archivo=args.exportar,
