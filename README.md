@@ -1,14 +1,16 @@
 # tp_modelado_y_optimizacion
 
-## Etapas 3 y 4: generacion de columnas
+## Etapa 3: generación manual de columnas
 
-Las funciones de esta etapa estan en `generacion_columnas.py`:
+La implementación manual está en `etapa3.py`:
 
-- `resolver_GC(path_instancia, segundos, variante="primal", imprimir_archivo=False)` ejecuta la version manual primal o dual.
-- `resolver_GC_nativo(path_instancia, segundos, imprimir_archivo=False)` ejecuta la version con `Pricer` de PySCIPOpt.
-- Ambas funciones retornan `(objetivo, cantidad_restricciones, cantidad_variables)` del MIP final.
-- `catalogo_inicial`, `crear_modelo_gc`, `resolver_GC_relajado`, `resolver_GC_pricing` y `resolver_GC_entero` permiten usar y probar cada fase por separado.
+- `resolver_GC(path_instancia, segundos, variante="primal", imprimir_archivo=False)` ejecuta la variante manual primal o dual.
+- `catalogo_inicial`, `crear_modelo_gc`, `resolver_GC_relajado`, `resolver_GC_pricing` y `resolver_GC_entero` exponen las fases para pruebas individuales.
 
-Las instancias de GC mantienen las lineas de datos existentes y agregan `ALPHA i j valor` para cada recurso/diseno y `K j valor` para cada diseno; `GAMMA valor` se acepta para compatibilidad con el generador. La lectura de GC se realiza con `leer_instancia_gc`. Los candidatos deben tener consumos no negativos y satisfacer `sum(alpha[i][j] * a[i][j]) >= k[j] * c[j]`. Conforme al pedido para estas etapas, no se usan `w`, `gamma` ni la capacidad de potencia.
+## Etapa 4: generación nativa de columnas
 
-Pruebas de esta etapa: `python -m unittest tests_generacion_columnas -v`.
+La implementación nativa está separada en `etapa4.py`; `resolver_GC_nativo(path_instancia, segundos, imprimir_archivo=False)` integra un `Pricer` de PySCIPOpt y luego resuelve el MIP entero final.
+
+Las instancias para ambas etapas se generan con `generate_instance.py`, usando `generar_instancia(..., incluir_tradeoff=True)`. `leer_instancia_gc` carga los coeficientes decimales `ALPHA` y `K`. Los diseños candidatos deben tener consumos no negativos y satisfacer `sum(alpha[i][j] * a[i][j]) >= k[j] * c[j]`. Por requisito, ni `w` ni `gamma` participan en las etapas 3 y 4. `generacion_columnas.py` mantiene los nombres de importación anteriores por compatibilidad.
+
+Pruebas separadas: `python -m unittest tests_etapa3 -v` y `python -m unittest tests_etapa4 -v`. Ejecutar toda la suite: `python -m unittest discover -v`.

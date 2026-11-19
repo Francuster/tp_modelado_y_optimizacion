@@ -1,5 +1,4 @@
-from generate_instance_a import DIR_INSTANCIAS
-import os
+import math
 
 
 def leer_instancia(path_instancia: str):
@@ -168,6 +167,16 @@ def leer_instancia_gc(path_instancia: str):
 
     Retorna ``n, m, b, c, u, a, alpha, k``. ``w``, ``beta`` y ``gamma`` no
     forman parte de estas etapas.
+
+    n    = cantidad de diseños
+    m    = cantidad de recursos
+    beta = factor de costo de infraestructura
+    b    = disponibilidad de cada recurso
+    c    = beneficio unitario de cada diseño
+    w    = consumo de potencia de cada diseño
+    u    = cota superior de produccion de cada diseño
+    a    = matriz de requerimientos a[i][j]
+    alpha = factores de ponderación que penalizan el consumo de los recursos internos i más escasos de la planta para un diseño j
     """
     n, m, _, b, c, _, u, a = leer_instancia(path_instancia)
 
@@ -186,7 +195,8 @@ def leer_instancia_gc(path_instancia: str):
                     raise ValueError(
                         f"Formato invalido en linea ALPHA ({numero_linea})"
                     )
-                i, j, valor = map(int, partes[1:])
+                i, j = map(int, partes[1:3])
+                valor = float(partes[3])
                 if not 1 <= i <= m or not 1 <= j <= n:
                     raise ValueError(
                         f"Indice fuera de rango en linea ALPHA ({numero_linea})"
@@ -197,7 +207,8 @@ def leer_instancia_gc(path_instancia: str):
             elif tipo == "K":
                 if len(partes) != 3:
                     raise ValueError(f"Formato invalido en linea K ({numero_linea})")
-                j, valor = map(int, partes[1:])
+                j = int(partes[1])
+                valor = float(partes[2])
                 if not 1 <= j <= n:
                     raise ValueError(
                         f"Indice fuera de rango en linea K ({numero_linea})"
@@ -216,6 +227,10 @@ def leer_instancia_gc(path_instancia: str):
         raise ValueError("Faltan parametros ALPHA para la instancia")
     if any(valor is None for valor in k):
         raise ValueError("Faltan parametros K para la instancia")
+    if any(not math.isfinite(valor) for fila in alpha for valor in fila):
+        raise ValueError("Los parametros ALPHA deben ser finitos")
+    if any(not math.isfinite(valor) for valor in k):
+        raise ValueError("Los parametros K deben ser finitos")
     if any(valor < 0 for fila in alpha for valor in fila):
         raise ValueError("Los parametros ALPHA deben ser no negativos")
     if any(valor < 0 for valor in k):

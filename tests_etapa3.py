@@ -2,15 +2,15 @@ import os
 import tempfile
 import unittest
 
-from generacion_columnas import (
+from etapa3 import (
     catalogo_inicial,
     crear_modelo_gc,
     resolver_GC,
-    resolver_GC_nativo,
     resolver_GC_pricing,
     resolver_GC_relajado,
 )
 from leer_instancia import leer_instancia_gc
+from generate_instance import generar_instancia
 
 
 INSTANCIA = """\
@@ -69,6 +69,23 @@ class TestGeneracionColumnas(unittest.TestCase):
         self.assertEqual((alpha[0][1], k[1]), (2, 1))
         self.assertEqual((b[0], c[1], u[1], a[0][1]), (5, 4, 3, 1))
 
+    def test_lee_floats_de_generate_instance(self):
+        archivo = tempfile.NamedTemporaryFile(
+            suffix=".txt", delete=False, dir=os.path.dirname(self.path)
+        )
+        archivo.close()
+        self.addCleanup(os.remove, archivo.name)
+        generar_instancia(
+            archivo.name,
+            N=5,
+            M=3,
+            seed=42,
+            incluir_tradeoff=True,
+        )
+        _, _, _, _, _, _, alpha, k = leer_instancia_gc(archivo.name)
+        self.assertIsInstance(alpha[0][0], float)
+        self.assertIsInstance(k[0], float)
+
     def test_pricing_devuelve_candidato_y_none_al_agotar(self):
         modelo = crear_modelo_gc(self.path, "primal", catalogo=[3])
         candidato = resolver_GC_pricing(modelo, [0, 0])
@@ -90,12 +107,10 @@ class TestGeneracionColumnas(unittest.TestCase):
             valores.append(resultado["objetivo"])
         self.assertAlmostEqual(valores[0], valores[1], places=6)
 
-    def test_resolucion_manual_y_nativa_entera(self):
+    def test_resolucion_entera_primal_y_dual(self):
         primal = resolver_GC(self.path, 10, "primal")
         dual = resolver_GC(self.path, 10, "dual")
-        nativo = resolver_GC_nativo(self.path, 10)
         self.assertEqual(primal[0], dual[0])
-        self.assertEqual(primal[0], nativo[0])
         self.assertEqual(primal[1:], dual[1:])
 
     def test_w_no_afecta_las_etapas_gc(self):
