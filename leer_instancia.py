@@ -197,24 +197,24 @@ def leer_instancia_gc(path_instancia: str):
                     )
                 i, j = map(int, partes[1:3])
                 valor = float(partes[3])
-                if not 1 <= i <= m or not 1 <= j <= n:
-                    raise ValueError(
-                        f"Indice fuera de rango en linea ALPHA ({numero_linea})"
-                    )
-                if alpha[i - 1][j - 1] is not None:
-                    raise ValueError(f"Parametro ALPHA duplicado en linea {numero_linea}")
+                # if not 1 <= i <= m or not 1 <= j <= n:
+                #     raise ValueError(
+                #         f"Indice fuera de rango en linea ALPHA ({numero_linea})"
+                #     )
+                # if alpha[i - 1][j - 1] is not None:
+                #     raise ValueError(f"Parametro ALPHA duplicado en linea {numero_linea}")
                 alpha[i - 1][j - 1] = valor
             elif tipo == "K":
                 if len(partes) != 3:
                     raise ValueError(f"Formato invalido en linea K ({numero_linea})")
                 j = int(partes[1])
                 valor = float(partes[2])
-                if not 1 <= j <= n:
-                    raise ValueError(
-                        f"Indice fuera de rango en linea K ({numero_linea})"
-                    )
-                if k[j - 1] is not None:
-                    raise ValueError(f"Parametro K duplicado en linea {numero_linea}")
+                # if not 1 <= j <= n:
+                #     raise ValueError(
+                #         f"Indice fuera de rango en linea K ({numero_linea})"
+                #     )
+                # if k[j - 1] is not None:
+                #     raise ValueError(f"Parametro K duplicado en linea {numero_linea}")
                 k[j - 1] = valor
             elif tipo == "GAMMA":
                 if len(partes) != 2:
